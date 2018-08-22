@@ -1,5 +1,4 @@
-// posts
-// comments
+// posts + comments
 
 const express = require('express');
 const router = express.Router();
