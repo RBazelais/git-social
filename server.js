@@ -14,6 +14,7 @@ app.use(bodyParser.json());
 
 // DB Config
 const db = require('./config/keys').mongoURI;
+// const db = require('./config/local').mongoURI;
 
 // Connect to MongoDb
 mongoose
