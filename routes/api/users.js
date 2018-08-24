@@ -36,7 +36,8 @@ router.post('/register', (req, res) => {
 	User.findOne({ email: req.body.email }).exec().then( user => {
 		console.log("*hacker voice* I'm in! ");
 		if(user){
-			return res.status(400).json({ email: 'Email already exists' });
+			errors.email = 'Email already exists';
+			return res.status(400).json(errors);
 		} else {
 			// else create newUser
 			console.log("Creating a new user");
