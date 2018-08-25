@@ -98,23 +98,23 @@ const ProfileSchema = new Schema({
         }
     ],
     // social media links
-    social: [
-        twitter:{
+    social: {
+        twitter: {
             type: String
         },
-        linkedin:{
+        linkedin: {
             type: String
         },
-        instagram:{
+        instagram: {
             type: String
         },
-        facebook:{
+        facebook: {
             type: String
         },
-        youtube:{
+        youtube: {
             type: String
         },
-    ],
+    },
     date: {
         type: Date,
         default: Date.now
