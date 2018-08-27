@@ -7,6 +7,8 @@ const passport = require('passport');
 const Profile = require('../../models/Profile');
 // Load User Model
 const User = require('../../models/User');
+// Load validation
+const validateProfileInput = require('../../validation/profile');
 
 // @route GET api/profile/test
 // @desc  Tests profile route
@@ -20,6 +22,8 @@ router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => 
     const errors = {};
     
     Profile.findOne({ user: req.user.id })
+        // populate fields from 'users' intot the reponse
+        .populate('user', ['name', 'avatar'])
         .then(profile => {
             if(!profile) {
                 errors.noprofile = 'There is no profile for this user';
@@ -34,6 +38,15 @@ router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => 
 // @desc  Create user or edit profile
 // @access private
 router.post('/', passport.authenticate('jwt', { session: false }), (req, res) => {
+    // De-structuring - get errors
+    const { errors, isValid } = validateProfileInput(req.body);
+
+    // Check validation
+    if(!isValid){
+        // Return any errors with 400 status
+        return res.status(400).json(errors);
+    }
+    
     // Get fields
     const profileFields = {};
     profileFields.user = req.user.id; // includes the avatar, name and email
@@ -49,7 +62,7 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
 
     // Skills - split into array by comma
     if(typeof req.body.skills !== 'undefined'){
-        profileFields.skills.split = req.body.skills.split(',');
+        profileFields.skills = req.body.skills.split(',');
     } 
 
     // Social
@@ -61,30 +74,28 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
     if(req.body.youtube) profileFields.social.youtube = req.body.youtube;
 
     // Find User
-    Profile.findOne({ user: req.user.id })
-        .then(profile => {
-            if(profile) {
-                // Update - set profile fields
-                profile.findOneAndUpdate(
-                    { user: req.user.id }, 
-                    { $set: profileFields }, 
-                    { new: true }
-                )
-                .then(profile => res.json(profile));
-            } else {
-                // Create
-
-                // Check to see if handle exists
-                Profile.findOne({ handle: profileFields.handle }).then(profile => {
-                    if(profile) {
-                        errors.handle = 'That handle already exists';
-                        res.status(400).json(errors);
-                    }
-
-                    // Save profile
-                    new Profile(profileFields).save().then(profile => res.json(profile));
-                });
+    Profile.findOne({ user: req.user.id }).then(profile => {
+        if (profile) {
+          // Update
+          Profile.findOneAndUpdate(
+            { user: req.user.id },
+            { $set: profileFields },
+            { new: true }
+          ).then(profile => res.json(profile));
+        } else {
+          // Create
+  
+          // Check if handle exists
+          Profile.findOne({ handle: profileFields.handle }).then(profile => {
+            if (profile) {
+              errors.handle = 'That handle already exists';
+              res.status(400).json(errors);
             }
+  
+            // Save Profile
+            new Profile(profileFields).save().then(profile => res.json(profile));
+          });
+        }
         });
 });
 
