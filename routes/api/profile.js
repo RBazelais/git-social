@@ -34,13 +34,33 @@ router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => 
         .catch(err => res.status(404).json(err));
 });
 
-
-// TODO: Write as private; users would have to be logged in to view profiles
+// @route   GET api/profile/all
+// @desc    Get all profiles
+// @access  Public
+router.get('/all', (req, res) => {
+    const errors = {};
+    
+    Profile.find()
+        .populate('user', ['name', 'avatar'])
+        .then(profiles => {
+            if (!profiles) {
+                errors.noprofile = 'There are no profiles';
+                return res.status(404).json(errors);
+            }
+            else {
+                console.log('Found all profiles');
+                return res.json(profiles);
+            }
+        })
+        .catch(err => 
+            res.status(404).json({ profile: 'There are no profiles' })
+        );
+});
 
 // @route   GET api/profile/handle/:handle
 // @desc    Get profile by handle
 // @access  Public
-
+// TODO: Write as private; users would have to be logged in to view profiles
 router.get('/handle/:handle', (req, res) => {
     const errors = {};
     
@@ -57,7 +77,9 @@ router.get('/handle/:handle', (req, res) => {
             }
         
         })
-        .catch(err => res.status(404).json(err));
+        .catch(err => 
+            res.status(404).json({ profile: 'There is no profile for this user' })
+        );
 });
 
 // @route   GET api/profile/user/:user_id
