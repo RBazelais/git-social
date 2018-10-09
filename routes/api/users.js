@@ -132,6 +132,7 @@ router.get('/current', passport.authenticate('jwt', { session: false }), (req, r
 		name: req.user.name,
 		email: req.user.email
 	})
+	console.log("current user confirmed");
 });
 
 module.exports = router;

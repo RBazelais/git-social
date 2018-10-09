@@ -22,7 +22,7 @@ router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => 
     const errors = {};
     
     Profile.findOne({ user: req.user.id })
-        // populate fields from 'users' intot the reponse
+        // populate fields from 'users' into the reponse
         .populate('user', ['name', 'avatar'])
         .then(profile => {
             if(!profile) {
@@ -32,6 +32,55 @@ router.get('/', passport.authenticate('jwt', { session: false }), (req, res) => 
             res.json(profile);
         })
         .catch(err => res.status(404).json(err));
+});
+
+
+// TODO: Write as private; users would have to be logged in to view profiles
+
+// @route   GET api/profile/handle/:handle
+// @desc    Get profile by handle
+// @access  Public
+
+router.get('/handle/:handle', (req, res) => {
+    const errors = {};
+    
+    Profile.findOne({ handle: req.params.handle })
+        .populate('user', ['name', 'avatar'])
+        .then(profile => {
+            if (!profile) {
+                errors.noprofile = 'There is no profile for this user';
+                return res.status(404).json(errors);
+            }
+            else {
+                console.log(`Profile found at ${req.params.handle}`);
+                return res.json(profile);
+            }
+        
+        })
+        .catch(err => res.status(404).json(err));
+});
+
+// @route   GET api/profile/user/:user_id
+// @desc    Get profile by user ID
+// @access  Public
+
+router.get('/user/:user_id', (req, res) => {
+    const errors = {};
+
+    Profile.findOne({ user: req.params.user_id })
+    .populate('user', ['name', 'avatar'])
+    .then(profile => {
+        if (!profile) {
+            errors.noprofile = 'There is no profile for this user';
+            return res.status(404).json(errors);
+        } else {
+            console.log(`Profile found at ${req.params.user_id}`);
+            return res.json(profile);
+        }
+    })
+    .catch(err =>
+        res.status(404).json({ profile: 'There is no profile for this user' })
+    );
 });
 
 // @route POST api/profile
@@ -76,27 +125,25 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
     // Find User
     Profile.findOne({ user: req.user.id }).then(profile => {
         if (profile) {
-          // Update
-          Profile.findOneAndUpdate(
-            { user: req.user.id },
-            { $set: profileFields },
-            { new: true }
-          ).then(profile => res.json(profile));
+            // Update
+            Profile.findOneAndUpdate(
+                { user: req.user.id },
+                { $set: profileFields },
+                { new: true }
+            ).then(profile => res.json(profile));
         } else {
-          // Create
-  
-          // Check if handle exists
-          Profile.findOne({ handle: profileFields.handle }).then(profile => {
-            if (profile) {
-              errors.handle = 'That handle already exists';
-              res.status(400).json(errors);
-            }
-  
-            // Save Profile
-            new Profile(profileFields).save().then(profile => res.json(profile));
-          });
+            // Check if handle exists
+            Profile.findOne({ handle: profileFields.handle }).then(profile => {
+                if (profile) {
+                    errors.handle = 'That handle already exists';
+                    return res.status(400).json(errors);
+                }
+
+                // Save Profile
+                new Profile(profileFields).save().then(profile => res.json(profile));
+            });
         }
-        });
+    });
 });
 
 module.exports = router;
