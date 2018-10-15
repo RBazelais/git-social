@@ -9,8 +9,9 @@ const Profile = require('../../models/Profile');
 const User = require('../../models/User');
 // Load validation
 const validateProfileInput = require('../../validation/profile');
-const validateExperienceInput = require('../../validation/experience');
 const validateEducationInput = require('../../validation/education');
+const validateExperienceInput = require('../../validation/experience');
+
 
 // @route GET api/profile/test
 // @desc  Tests profile route
@@ -49,14 +50,11 @@ router.get('/all', (req, res) => {
                 errors.noprofile = 'There are no profiles';
                 return res.status(404).json(errors);
             }
-            else {
-                console.log('Found all profiles');
-                return res.json(profiles);
-            }
+            console.log('Found all profiles');
+            res.json(profiles);
+            
         })
-        .catch(err => 
-            res.status(404).json({ profile: 'There are no profiles' })
-        );
+        .catch(err => res.status(404).json({ profile: 'There are no profiles' }));
 });
 
 // @route   GET api/profile/handle/:handle
@@ -195,7 +193,7 @@ router.post('/experience', passport.authenticate('jwt', { session: false }), (re
                 description: req.body.description
             }
 
-            // Add to experience array
+            // Add to front of experience array of this profile
             profile.experience.unshift(newExp);
 
             // Save to profile
@@ -219,22 +217,21 @@ router.post('/education', passport.authenticate('jwt', { session: false }), (req
 
     Profile.findOne({ user: req.user.id }).then(profile => {
         const newEdu = {
-        school: req.body.school,
-        degree: req.body.degree,
-        fieldofstudy: req.body.fieldofstudy,
-        from: req.body.from,
-        to: req.body.to,
-        current: req.body.current,
-        description: req.body.description
+            school: req.body.school,
+            degree: req.body.degree,
+            fieldofstudy: req.body.fieldofstudy,
+            from: req.body.from,
+            to: req.body.to,
+            current: req.body.current,
+            description: req.body.description
         };
 
         // Add to exp array
         profile.education.unshift(newEdu);
 
         profile.save().then(profile => res.json(profile));
-    });
-    }
-);
+    }); 
+});
 
 module.exports = router;
 
