@@ -132,6 +132,7 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
     if(req.body.githubusername) profileFields.githubusername = req.body.githubusername;
 
     // Skills - split into array by comma
+    // TODO: Trim strings so no spaces remain in database
     if(typeof req.body.skills !== 'undefined'){
         profileFields.skills = req.body.skills.split(',');
     } 
@@ -162,7 +163,7 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
                 }
 
                 // Save Profile
-                new Profile(profileFields).save().then(profile => res.json(profile));
+                new Profile(profileFields).save().then(profile => res.status(200).json(profile));
             });
         }
     });
@@ -275,9 +276,22 @@ router.delete('/education/:edu_id', passport.authenticate('jwt', { session: fals
         .catch(err => res.status(500).json({ profile: `Unable to delete education at id: ${req.params.edu_id}` }));
 });
 
+// @route DELETE api/profile
+// @desc  Delete user and profile
+// @access private
+router.delete('/', passport.authenticate('jwt', { session: false }), (req, res) => {
+    // Get Profile collection, then User collection and delete both
+    Profile.findOneAndRemove({ user: req.user.id })
+        .then(() => {
+            // User collection: get by user id
+            User.findOneAndRemove({ _id: req.user.id })
+                .then(() => res.json({ success: true }))
+                .catch(err => res.status(404).json({ success: false }));
+        })
+        .catch(err => res.status(500).json(err));
+});
+
 module.exports = router;
 
 // TODO:
 // location
-// bio
-// social network links
