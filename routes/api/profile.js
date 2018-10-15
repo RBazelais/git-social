@@ -171,19 +171,18 @@ router.post('/', passport.authenticate('jwt', { session: false }), (req, res) =>
 // @route POST api/profile/experience
 // @desc  Add experience to profile
 // @access private
-router.post('/experience', passport.authenticate('jwt', { session: false }), (req, res) => {
-    const { errors, isValid } = validateExperienceInput(req.body);
+router.post('/experience', passport.authenticate('jwt', { session: false }), 
+    (req, res) => {
+        const { errors, isValid } = validateExperienceInput(req.body);
 
-    // Check validation
-    if(!isValid){
-        // Return any errors with 400 status
-        return res.status(400).json(errors);
-    }
+        // Check Validation
+        if (!isValid) {
+            // Return any errors with 400 status
+            return res.status(400).json(errors);
+        }
 
-    Profile.findOne({ user: req.user.id })
-        .then(profile => {
-            // create new experience object
-            const newExp ={
+        Profile.findOne({ user: req.user.id }).then(profile => {
+            const newExp = {
                 title: req.body.title,
                 company: req.body.company,
                 location: req.body.location,
@@ -191,17 +190,15 @@ router.post('/experience', passport.authenticate('jwt', { session: false }), (re
                 to: req.body.to,
                 current: req.body.current,
                 description: req.body.description
-            }
+            };
 
-            // Add to front of experience array of this profile
+            // Add to exp array
             profile.experience.unshift(newExp);
 
-            // Save to profile
             profile.save().then(profile => res.json(profile));
-            console.log(req.body + "\n new exp object successfully added to profile");
-        })
-
-});
+        });
+    }
+);
 
 // @route   POST api/profile/education
 // @desc    Add education to profile
@@ -230,7 +227,52 @@ router.post('/education', passport.authenticate('jwt', { session: false }), (req
         profile.education.unshift(newEdu);
 
         profile.save().then(profile => res.json(profile));
-    }); 
+    });
+});
+//         profile: 'This education has not been added to the user profile' 
+//     }));
+// });
+
+// @route DELETE api/profile/experience/:exp_id
+// @desc  Delete experience from profile
+// @access private
+router.delete('/experience/:exp_id', passport.authenticate('jwt', { session: false }), 
+(req, res) => {
+    Profile.findOne({ user: req.user.id })
+        .then(profile => {
+            // const removeIndex = profile.experience                
+            //     // map experience array
+            //     .map(item => item.id)
+            //     // Get index of item == exp_id
+            //     .indexOf(req.params.exp_id);
+
+            // // Splice out of array
+            // profile.experience.splice(removeIndex, 1);
+            // // Annnd refactored
+            profile.experience.remove({ _id: req.params.exp_id });
+            
+            // Save
+            profile.save().then(profile => res.status(200).json(profile));
+            console.log(`Deleted experience at id: ${req.params.exp_id}`);
+        })
+        .catch(err => res.status(500).json({ profile: `Unable to delete experience at id: ${req.params.exp_id}` }));
+    }
+);
+
+// @route DELETE api/profile/education/:edu_id
+// @desc  Delete education from profile
+// @access private
+router.delete('/education/:edu_id', passport.authenticate('jwt', { session: false }), 
+(req, res) => {
+    Profile.findOne({ user: req.user.id })
+        .then(profile => {
+            profile.education.remove({ _id: req.params.edu_id });
+            
+            // Save
+            profile.save().then(profile => res.status(200).json(profile));
+            console.log(`Deleted education at id: ${req.params.edu_id}`);
+        })
+        .catch(err => res.status(500).json({ profile: `Unable to delete education at id: ${req.params.edu_id}` }));
 });
 
 module.exports = router;
