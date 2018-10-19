@@ -230,9 +230,6 @@ router.post('/education', passport.authenticate('jwt', { session: false }), (req
         profile.save().then(profile => res.json(profile));
     });
 });
-//         profile: 'This education has not been added to the user profile' 
-//     }));
-// });
 
 // @route DELETE api/profile/experience/:exp_id
 // @desc  Delete experience from profile

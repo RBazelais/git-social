@@ -42,6 +42,7 @@ router.get('/:id', (req, res) => {
 // @route POST api/posts
 // @desc  Create a post
 // @access Private
+// TODO: make an PUT route for updating/editing posts
 router.post('/', passport.authenticate('jwt', { session: false }), (req, res) => {
     const { errors, isValid } = validatePostInput(req.body);
 
