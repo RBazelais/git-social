@@ -1,20 +1,14 @@
 import { GET_ERRORS } from "../actions/types";
 
-const initialState = {
-    isAuthenticated: false,
-    user: {}
-};
-
+const initialState = {};
 
 export default function authReducer(state = initialState, action) {
     //dispatch actions to the reducer
     switch(action.type) {
         case GET_ERRORS :
-            return {
-                ...state,
-                user: action.payload
-            }
+            return action.payload;
         default:
             return state;
     }
 }
+ 
