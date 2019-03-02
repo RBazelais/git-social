@@ -8,7 +8,9 @@ class Navbar extends Component {
 	onLogoutClick(e){
 		e.preventDefault();
 		this.props.logoutUser();
+		window.location.href = '/login';
 	}
+
 	render() {
 		// pull out isAuthenticated
 		const { isAuthenticated, user } = this.props.auth;
@@ -29,8 +31,9 @@ class Navbar extends Component {
 								width: '25px', 
 								marginRight: '5px'
 							}}
-						/>{' '}
-						 Logout
+						/>
+						{' '}
+						Logout
 					</a>
 				</li>
 			</ul> 
