@@ -95,7 +95,8 @@ class Register extends Component {
 										type="password" 
 										className={classnames("form-control form-control-lg", {
 											"is-invalid" : errors.password
-										})} placeholder="Password" 
+										})} 
+										placeholder="Password" 
 										name="password" 
 										value={ this.state.password }
 										onChange={ this.onChange }
