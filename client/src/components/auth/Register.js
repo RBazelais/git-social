@@ -22,6 +22,7 @@ class Register extends Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
+		// test if errors will recieve props
 		if(nextProps.errors){
 			this.setState({ errors: nextProps.errors });
 		}
@@ -38,7 +39,8 @@ class Register extends Component {
 			email: this.state.email,
 			password: this.state.password,
 			confirmPassword: this.state.confirmPassword
-		}
+		};
+		// use this.props.history to redirect from within this action
 		this.props.registerUser(newUser, this.props.history);
 	}
 	render() {
