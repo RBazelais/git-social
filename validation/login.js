@@ -1,7 +1,7 @@
 const Validator = require('validator');
 const isEmpty = require('./is-empty');
 
-// NOTE: every thing validator receives must be a string
+// NOTE: every thing validator recieves must be a string
 module.exports = function validateLoginInput(data){
     let errors = {};
 
